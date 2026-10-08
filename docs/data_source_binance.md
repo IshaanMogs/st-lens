@@ -8,9 +8,14 @@
 |---|---|---|---|
 | Diff depth | `btcusdt@depth@100ms` (default `btcusdt@depth` = 1000 ms) | 1000 ms or 100 ms | `E` event time, `U` first update ID, `u` final update ID, `b`/`a` = `[price, qty]` (**qty 0 = remove level**) |
 | Trades | `btcusdt@trade` | real-time | `t` trade ID, `p`, `q`, `T` trade time, `m` buyer is maker |
-| Snapshot (REST) | `GET https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=5000` | on demand | `lastUpdateId`, ≤ 5000 levels per side |
+| Snapshot (REST) | `GET /api/v3/depth?symbol=BTCUSDT&limit=5000` | on demand (weight 250 at limit 1001–5000) | `lastUpdateId`, ≤ 5000 levels per side |
+| Instrument rules (REST) | `GET /api/v3/exchangeInfo?symbol=BTCUSDT` | on demand (weight 20) | `PRICE_FILTER.tickSize`, `LOT_SIZE.stepSize` (0 = rule disabled) |
 
-- **Endpoints:** `wss://stream.binance.com:9443` (or `:443`). `wss://data-stream.binance.vision` serves market data only.
+- **Endpoints:**
+  - WebSocket: `wss://stream.binance.com:9443` (or `:443`). `wss://data-stream.binance.vision` serves market data only.
+  - REST: `https://api.binance.com`. For public market-data-only calls, the docs recommend `https://data-api.binance.vision`; the Phase 1 REST client uses that.
+  - The `*.binance.vision` hostnames are live API endpoints. **They are not the Binance Vision historical datasets** covered by the Vision Dataset Terms (source B below).
+- **REST errors:** HTTP 429 = rate limit exceeded; HTTP 418 = IP auto-banned for continuing after 429s. Both carry `Retry-After` (seconds). The client raises on any non-200 and never retries automatically.
 - **Combined stream:** `/stream?streams=btcusdt@depth@100ms/btcusdt@trade`.
 - **Timestamps:** milliseconds by default; `timeUnit=MICROSECOND` gives µs. **Decision: record in µs.** Store both the exchange time (`E`/`T`) and the local receive time, both as UTC (spec B.1).
 - **Aggressor side:** `m = true` means the buyer is the maker, so the aggressor is the **seller**.

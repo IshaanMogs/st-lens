@@ -25,6 +25,14 @@
   - The pre-existing local Python 3.13 `.venv` is **not** a project environment and must not be modified further.
   - During Phase 0 it received one editable install of `stlens` plus its core dependencies, used to run pytest once. Nothing else has been changed since.
   - Before Phase 1, a clean Python 3.11 project environment is created and the project is installed from `pyproject.toml`.
+  - Done: the project environment is `.venv311` (Python 3.11.15).
+
+## Decided during Phase 1 (details in `canonical_events.md`)
+
+- **D-ING-1 `BookDelta` granularity.** One canonical `BookDelta` per price-level change, as in spec B.2. Exchange messages are kept as exchange-specific envelopes (`BinanceDepthMessage`), so messages with zero level changes keep their `U`/`u`.
+- **D-ING-2 Raw storage.** Gzip JSON lines in `data/raw` and `data/quarantine`, partitioned by `exchange/symbol/UTC receipt day/session`. Files are exclusive-create and the payload is stored as the exact text. *Provisional; it may be revisited when volumes are measured.*
+- **D-ING-3 Price/size table type.** float64 in Pandera tables. *PROVISIONAL:* no precision requirement has been established yet, and the exact decimal strings are preserved in raw.
+- **D-ING-4 CI extras.** CI installs `.[dev,ingest]`, because the REST and recorder tests use httpx. No test touches the network.
 
 ## D-EVAL-1: evaluation design (PROVISIONAL, 2026-10-08)
 
