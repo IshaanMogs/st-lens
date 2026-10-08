@@ -1,0 +1,30 @@
+# Data is never committed (raw exchange captures, canonical events, features, labels).
+/data/
+
+# MLflow tracking store and artefacts
+/mlruns/
+/mlartifacts/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.venv*/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Notebooks: keep code, drop checkpoints
+.ipynb_checkpoints/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
