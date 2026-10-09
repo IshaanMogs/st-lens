@@ -79,3 +79,15 @@ Inside D1–D25, following spec I:
 - **Approvals:** Captum and DuckDB.
 - **Evaluation:** finalise the D-EVAL-1 embargo and fold schedule (after Phase 4).
 - **Spec rendering defects:** missing architecture diagram, truncated `d_depth` cell, signed-log on non-negative flows.
+
+## D-FT-1: fast-track research prototype (2026-10-09)
+
+- **Decision:** at the user's request, phases 1–12 are implemented as a minimal end-to-end prototype for a demonstration. Details and limitations are in `fast_track.md`.
+- **Data:** synthetic order book, because live Binance data is not approved. Spoof episodes are injected inside the simulator with separate seed streams per split.
+- **Evaluation:** one chronological fold (5 train / 1 validation / 2 test days), 3 seeds per deep model, fixed hyperparameters. Test days were evaluated once, via `--final`.
+- **Unchanged:** D-EVAL-1 (the 30-day BTCUSDT design with a 5-day lock-box) still applies to the eventual real-data study. The synthetic test days are not that lock-box.
+- **Injection parameters:** fixed before the final run.
+  - Spoof size = background size tail above the 99th percentile.
+  - Payoff = 3–8× the median market order.
+  - Changed once, after a smoke run on a small configuration showed almost no learnable signal at the 95th percentile.
+- **Dependencies:** the `ml` extra is now torch, scikit-learn and xgboost. `mlflow` and `shap` moved to a new `tracking` extra and are deferred. CI installs CPU-only torch.

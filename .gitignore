@@ -28,3 +28,7 @@ htmlcov/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Experiment outputs (regenerable)
+/artifacts/
+/artifacts_run.log

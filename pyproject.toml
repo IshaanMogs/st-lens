@@ -31,14 +31,17 @@ ingest = [
     "websockets>=12",
     "httpx>=0.27",
 ]
-# Phases 6-9: models, training, tracking, explanations.
+# Phases 6-9: models and training.
 # PyTorch: CPU wheels are sufficient; code must stay device-agnostic so CUDA works later.
 ml = [
     "torch>=2.2",
     "scikit-learn>=1.4",
     "xgboost>=2.0",
-    "shap>=0.45",
+]
+# Deferred in the fast-track prototype: experiment tracking and TreeSHAP.
+tracking = [
     "mlflow>=2.12",
+    "shap>=0.45",
 ]
 # Phase 11: read-only dashboard.
 dashboard = [
@@ -76,7 +79,8 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["T20"]
+"tests/**" = ["T20", "PT018"]
+"src/stlens/report.py" = ["E501"]  # Markdown table literals
 "scripts/**" = ["T20"]
 
 [tool.ruff.format]

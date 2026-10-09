@@ -14,7 +14,7 @@ concurrency:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -24,10 +24,11 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install package with dev + ingest extras
+      - name: Install package with dev, ingest, ml and dashboard extras (CPU-only torch)
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[dev,ingest]"
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e ".[dev,ingest,ml,dashboard]"
 
       - name: Ruff lint
         run: ruff check .
