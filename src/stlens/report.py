@@ -20,11 +20,11 @@ ORDER = [
 ]
 
 
-def _fmt(cell: dict) -> str:
+def _fmt(cell: dict, digits: int = 3) -> str:
     m, s, n = cell["mean"], cell["std"], cell["n"]
     if m is None or (isinstance(m, float) and math.isnan(m)):
         return "n/a"
-    return f"{m:.3f} ± {s:.3f}" if n > 1 else f"{m:.3f}"
+    return f"{m:.{digits}f} ± {s:.{digits}f}" if n > 1 else f"{m:.{digits}f}"
 
 
 def _table(summary: dict) -> list[str]:
@@ -37,11 +37,14 @@ def _table(summary: dict) -> list[str]:
         ("episode_recall", "Episode recall"),
         ("hard_negative_flag_rate", "Hard-neg flag rate"),
         ("median_latency_s", "Latency (s)"),
+        ("alerts_per_hour", "Alerts/h"),
     ]
+    digits = {"alerts_per_hour": 0}
     lines = ["| Model | " + " | ".join(c[1] for c in cols) + " |", "|---" * (len(cols) + 1) + "|"]
     for name in [n for n in ORDER if n in summary] + [n for n in summary if n not in ORDER]:
         row = summary[name]
-        lines.append(f"| {name} | " + " | ".join(_fmt(row[k]) for k, _ in cols) + " |")
+        cells = [_fmt(row[k], digits.get(k, 3)) if k in row else "n/a" for k, _ in cols]
+        lines.append(f"| {name} | " + " | ".join(cells) + " |")
     return lines
 
 
@@ -69,6 +72,14 @@ def render(results_path: Path) -> str:
         "classical models are single runs; B0 has one random run per seed).",
         f"- Thresholds and temperatures chosen on validation only. Recall@budget uses "
         f"{cfg['alerts_per_hour']:.0f} flagged windows/hour, threshold set on validation.",
+        "- Precision, Recall, Episode recall, Hard-neg flag rate, Latency and **Alerts/h** are "
+        "measured at each model's operating threshold: the threshold that maximises window-level "
+        "F1 on the VALIDATION day (per model and seed), applied unchanged to test.",
+        "- **Alerts/h** = flagged windows per hour of evaluated market time. One window is scored "
+        "per 250 ms grid step, i.e. up to 14,400 windows/hour; consecutive flagged windows are "
+        "counted separately (this is not the de-duplicated alert count of the replay table). "
+        "Compare Episode recall only together with Alerts/h: a model that flags most windows "
+        "gets high episode recall trivially (see B0).",
         f"- Final test evaluation performed: **{r['final_test_evaluated']}**. Runtime {r['runtime_s']} s.",
         "",
         "## Data",

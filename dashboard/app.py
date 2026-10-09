@@ -212,10 +212,19 @@ with tab_models:
                 "episode_recall",
                 "hard_negative_flag_rate",
                 "median_latency_s",
+                "alerts_per_hour",
             ]
             if c in rows
         ]
         st.dataframe(rows[show].sort_values("pr_auc", ascending=False), use_container_width=True)
+        st.caption(
+            "Operating threshold per model and seed = the threshold maximising window-level F1 on "
+            "the VALIDATION day, applied unchanged to test. alerts_per_hour = flagged windows per "
+            "hour of evaluated market time (one window per 250 ms step, up to 14,400/h; "
+            "consecutive flags counted separately, not de-duplicated alerts). Read episode_recall "
+            "together with alerts_per_hour. recall_at_budget uses a separate validation threshold "
+            "fixed at the configured window budget."
+        )
     curves = load_pr_curves(ROOT)
     if curves:
         fig = go.Figure()

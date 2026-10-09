@@ -77,7 +77,18 @@ This is a **research prototype** built quickly for a demonstration. It implement
    Differences smaller than the seed spread are not findings.
 7. **Crypto/synthetic ≠ regulated equities.**
 
-## 5. Deferred to a later or production phase
+## 5. Model checkpoint status
+
+- **Every run now saves a checkpoint.** `scripts/run_experiment.py` writes `<out>/stlens_full.pt` for the ST-LENS-Net seed chosen on validation. It contains:
+  - the architecture config and weights;
+  - the train-only input scalers;
+  - the validation-fitted temperature and the validation-chosen threshold;
+  - metadata.
+  
+  `stlens.models.checkpoint.load_checkpoint` reloads it with the safe `torch.load(weights_only=True)` loader, and tests show the reload reproduces predictions exactly.
+- **The final run reported in `results.md` (2026-10-08) has no checkpoint.** It predates this feature. Creating one would mean retraining, which would be a new experiment and could differ numerically, so it was not done. The dashboard and `results.md` use the stored scores from that run.
+
+## 6. Deferred to a later or production phase
 
 - Live recording and a Binance data-health report (the Phase 1 gate on real data) are blocked on the terms and jurisdiction review.
 - Not yet built:

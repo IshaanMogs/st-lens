@@ -23,11 +23,15 @@ uv pip install --python .venv311 -e ".[dev,ingest,ml,dashboard]"
 ## Run
 
 ```bash
-python scripts/run_experiment.py --quick     # ~30 s smoke run (numbers meaningless)
-python scripts/run_experiment.py             # full run, validation only
-python scripts/run_experiment.py --final     # full run + one-time test evaluation -> docs/results.md
+# ~30 s smoke run; numbers are meaningless. Writes ONLY to demo_quick/ (report: demo_quick/results.md)
+python scripts/run_experiment.py --quick --final --out demo_quick
+# full run + one-time test evaluation -> artifacts/ and docs/results.md
+# (overwrites the existing final results; the test days have already been used once)
+python scripts/run_experiment.py --final
 streamlit run dashboard/app.py               # read-only dashboard over artifacts/
 ```
+
+To point the dashboard at the smoke run instead: set `STLENS_ARTIFACTS=demo_quick` before `streamlit run`.
 
 ## Checks (same as CI)
 

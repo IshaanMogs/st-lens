@@ -31,4 +31,6 @@ Thumbs.db
 
 # Experiment outputs (regenerable)
 /artifacts/
+/demo_quick/
+/colab_demo/
 /artifacts_run.log

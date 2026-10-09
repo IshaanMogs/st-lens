@@ -32,6 +32,7 @@ from stlens.explain.attribution import (
 )
 from stlens.features.tabular import RULE_LIKE, window_features
 from stlens.models.baselines.deep import DeepLOBLite, SpatialCNN, TemporalTCN
+from stlens.models.checkpoint import save_checkpoint
 from stlens.models.classical.baselines import fit_logistic, fit_xgboost, prior_scores
 from stlens.models.stlens_net.model import STLENSNet
 from stlens.scoring.replay import AlertConfig, replay_day
@@ -253,6 +254,30 @@ def run(
     if "STLENS_full" in {n for n, _ in trained}:
         best_seed = max(
             cfg.seeds, key=lambda s: max(h["val_pr_auc"] for h in histories[f"STLENS_full/seed{s}"])
+        )
+        # Checkpoint of the model selected on VALIDATION, with its train-only scalers and
+        # validation-fitted temperature/threshold. Saving it changes no result.
+        i = cfg.seeds.index(best_seed)
+        save_checkpoint(
+            out_dir / "stlens_full.pt",
+            trained[("STLENS_full", best_seed)],
+            std,
+            temps[("STLENS_full", best_seed)],
+            thresholds["STLENS_full"][i],
+            meta={
+                "model": "STLENS_full",
+                "seed": best_seed,
+                "selected_by": "best validation PR-AUC across seeds",
+                "val_pr_auc": max(
+                    h["val_pr_auc"] for h in histories[f"STLENS_full/seed{best_seed}"]
+                ),
+                "threshold_rule": "max window-level F1 on validation",
+                "window": dc.window,
+                "horizon": dc.horizon,
+                "grid_us": dc.grid_us,
+                "data_config": json.loads(json.dumps(asdict(dc), default=str)),
+                "synthetic_data": True,
+            },
         )
     if final and best_seed is not None:
         model = trained[("STLENS_full", best_seed)]

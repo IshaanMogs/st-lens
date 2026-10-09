@@ -9,6 +9,7 @@ from streamlit.testing.v1 import AppTest
 from stlens.dashboard_data import confusion, list_days, load_day, load_results, metrics_rows
 from stlens.datasets.build import DataConfig
 from stlens.experiment import ExperimentConfig, run
+from stlens.models.checkpoint import load_checkpoint
 from stlens.training.trainer import TrainConfig
 
 pytestmark = pytest.mark.integration
@@ -36,6 +37,16 @@ def test_pipeline_artifacts_load(artifacts):
     assert dv.depth.shape[0] == len(dv.prob) == len(dv.y)
     assert confusion(r, "test", "STLENS_full").sum() == r["data"]["test"]["windows"]
     assert metrics_rows(r, "val")
+
+
+def test_pipeline_writes_validation_selected_checkpoint(artifacts):
+    r = load_results(artifacts)
+    ck = load_checkpoint(artifacts / "stlens_full.pt")
+    assert ck.meta["seed"] == r["best_stlens_seed_by_val"]
+    assert ck.threshold == r["thresholds_from_val"]["STLENS_full"][0]
+    assert ck.meta["synthetic_data"] is True
+    assert set(ck.standardizers) == {"ladder", "context", "level"}
+    assert all(s.fitted_on_split == "train" for s in ck.standardizers.values())
 
 
 def test_dashboard_renders(artifacts):

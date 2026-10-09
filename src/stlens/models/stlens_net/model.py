@@ -43,6 +43,16 @@ class STLENSNet(nn.Module):
         shared_sides: bool = True,
     ) -> None:
         super().__init__()
+        # Constructor arguments, stored so a checkpoint can rebuild the exact architecture.
+        self.config = {
+            "channels": channels,
+            "buckets": buckets,
+            "context": context,
+            "dim": dim,
+            "use_spatial": use_spatial,
+            "use_temporal": use_temporal,
+            "shared_sides": shared_sides,
+        }
         self.P, self.H = buckets, buckets // 2
         self.use_spatial, self.use_temporal = use_spatial, use_temporal
         branch = dim // 2

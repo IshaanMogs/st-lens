@@ -36,6 +36,7 @@ ingest = [
 ml = [
     "torch>=2.2",
     "scikit-learn>=1.4",
+    "scipy>=1.11",  # imported directly (stable sigmoid in training.trainer)
     "xgboost>=2.0",
 ]
 # Deferred in the fast-track prototype: experiment tracking and TreeSHAP.
